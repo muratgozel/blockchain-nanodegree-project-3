@@ -1,5 +1,8 @@
 # Supply Chain Project
-This repository contains an ethereum dapp that demonstrates a supply chain flow for the coffee industry. The coffee beans, which are harvested by **the farmers**, are sold to **the distributors**, and **the distributors** then distribute them to **the retailers**, and finally, **the consumer** purchases them..
+This repository contains an ethereum dapp that demonstrates a supply chain flow for the coffee industry. The coffee beans, which are harvested by **the farmers**, are sold to **the distributors**, and **the distributors** then distribute them to **the retailers**, and finally, **the consumer** purchases them.
+
+## Libraries
+There are no libraries used.
 
 ## UML Diagrams
 ### Activity Diagram
