@@ -14,7 +14,7 @@ contract('SupplyChain', function(accounts) {
     const originFarmLongitude = "144.341490"
     var productID = sku + upc
     const productNotes = "Best beans for Espresso"
-    const productPrice = web3.toWei(0.0001, "ether")
+    const productPrice = web3.utils.toWei("0.0001", "ether")
     var itemState = 0
     const distributorID = accounts[2]
     const retailerID = accounts[3]
@@ -44,51 +44,43 @@ contract('SupplyChain', function(accounts) {
     it("Testing access control functions addFarmer, addDistributor, addRetailer, addConsumer", async() => {
       const supplyChain = await SupplyChain.deployed()
 
-      var eventFarmerEmitted = false
-      await supplyChain.FarmerAdded().watch((err, res) => {
-          eventFarmerEmitted  = true
-      })
+      var farmerAdded = false, distributerAdded = false, retailerAdded = false, consumerAdded = false;
       await supplyChain.addFarmer(accounts[1], {from: accounts[0]});
-      assert.equal(eventFarmerEmitted, true, 'Failed to farmer.')
-
-      var eventDistributorEmitted = false
-      await supplyChain.DistributorAdded().watch((err, res) => {
-          eventDistributorEmitted  = true
+      await supplyChain.getPastEvents('FarmerAdded', function(err, events) {
+        if (!err) farmerAdded = true;
       })
       await supplyChain.addDistributor(accounts[2], {from: accounts[0]});
-      assert.equal(eventDistributorEmitted, true, 'Failed to add distributor.')
-
-      var eventRetailerEmitted = false
-      await supplyChain.RetailerAdded().watch((err, res) => {
-          eventRetailerEmitted  = true
+      await supplyChain.getPastEvents('DistributorAdded', function(err, events) {
+        if (!err) distributerAdded = true;
       })
       await supplyChain.addRetailer(accounts[3], {from: accounts[0]});
-      assert.equal(eventRetailerEmitted, true, 'Failed to add retailer.')
-
-      var eventConsumerEmitted = false
-      await supplyChain.ConsumerAdded().watch((err, res) => {
-          eventConsumerEmitted  = true
+      await supplyChain.getPastEvents('RetailerAdded', function(err, events) {
+        if (!err) retailerAdded = true;
       })
       await supplyChain.addConsumer(accounts[4], {from: accounts[0]});
-      assert.equal(eventConsumerEmitted, true, 'Failed to add consumer.')
+      await supplyChain.getPastEvents('ConsumerAdded', function(err, events) {
+        if (!err) consumerAdded = true;
+      })
+
+      assert.equal(farmerAdded, true, 'Failed to add distributor.')
+      assert.equal(distributerAdded, true, 'Failed to add distributor.')
+      assert.equal(retailerAdded, true, 'Failed to add retailer.')
+      assert.equal(consumerAdded, true, 'Failed to add consumer.')
     })
 
     // 1st Test
     it("Testing smart contract function harvestItem() that allows a farmer to harvest coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false
-
-        // Watch the emitted event Harvested()
-        var event = supplyChain.Harvested()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Harvested by calling function harvestItem()
         await supplyChain.harvestItem(upc, originFarmerID, originFarmName, originFarmInformation,
           originFarmLatitude, originFarmLongitude, productNotes, {from: accounts[1]})
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Harvested', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -111,17 +103,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function processItem() that allows a farmer to process coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event Processed()
-        var event = supplyChain.Processed()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Processed by calling function processtItem()
         await supplyChain.processItem(upc, {from: originFarmerID});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Processed', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -144,17 +133,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function packItem() that allows a farmer to pack coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event Packed()
-        var event = supplyChain.Packed()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Packed by calling function packItem()
         await supplyChain.packItem(upc, {from: originFarmerID});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Packed', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -177,17 +163,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function sellItem() that allows a farmer to sell coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event ForSale()
-        var event = supplyChain.ForSale()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as ForSale by calling function sellItem()
         await supplyChain.sellItem(upc, productPrice, {from: originFarmerID});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('ForSale', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -211,17 +194,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function buyItem() that allows a distributor to buy coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event Sold()
-        var event = supplyChain.Sold()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Sold by calling function buyItem()
-        await supplyChain.buyItem(upc, {from: distributorID, value: web3.toWei(0.1, "ether")});
+        await supplyChain.buyItem(upc, {from: distributorID, value: web3.utils.toWei("0.1", "ether")});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Sold', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -246,17 +226,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function shipItem() that allows a distributor to ship coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event Shipped()
-        var event = supplyChain.Shipped()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Shipped by calling function shipItem()
         await supplyChain.shipItem(upc, {from: distributorID});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Shipped', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -281,17 +258,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function receiveItem() that allows a retailer to mark coffee received", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event Received()
-        var event = supplyChain.Received()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Received by calling function receiveItem()
         await supplyChain.receiveItem(upc, {from: retailerID});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Received', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -317,17 +291,14 @@ contract('SupplyChain', function(accounts) {
     it("Testing smart contract function purchaseItem() that allows a consumer to purchase coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
 
-        // Declare and Initialize a variable for event
-        var eventEmitted = false;
-
-        // Watch the emitted event Purchased()
-        var event = supplyChain.Purchased()
-        await event.watch((err, res) => {
-            eventEmitted = true
-        })
-
         // Mark an item as Sold by calling function purchaseItem()
         await supplyChain.purchaseItem(upc, {from: consumerID});
+
+        // Declare and Initialize a variable for event
+        var eventEmitted = false
+        await supplyChain.getPastEvents('Purchased', function(err, events) {
+          if (!err) eventEmitted = true;
+        })
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)

@@ -1487,10 +1487,11 @@
     "1615635090623": {
       "events": {},
       "links": {},
-      "address": "0x94245606e19440375ba50f5883dd9521f4f9c533",
-      "transactionHash": "0x68288797c8232d4f811352e68075cc899c6b70a82aed64bd4f705c4f45a38eab"
+      "address": "0x9c269195430170C60793739e8D0BC0519Eaf5c01",
+      "transactionHash": "0x3b16ba92520fc0fe04ba1629886e1cb77830f7fddebfcc45fd52e2e865ad21fb"
     }
   },
-  "schemaVersion": "2.0.3",
-  "updatedAt": "2021-03-14T10:56:59.837Z"
+  "schemaVersion": "3.3.4",
+  "updatedAt": "2021-03-14T14:56:20.173Z",
+  "networkType": "ethereum"
 }
