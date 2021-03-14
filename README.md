@@ -20,3 +20,49 @@ There are no libraries used.
 
 ### Model Diagram
 ![Model diagram.](https://github.com/muratgozel/blockchain-nanodegree-project-3/blob/1769167e0e6c2bdb0c79cee57ee17aa26368e744/uml/model.png?raw=true)
+
+## Docs
+### Requirements
+1. ganache-cli
+2. truffle
+3. metamask
+4. infura account
+
+### Installation
+Install dependencies:
+```
+npm i -g truffle ganache-cli
+```
+Clone this repository:
+```sh
+git clone https://github.com/muratgozel/blockchain-nanodegree-project-3.git
+```
+Enter project directory and install the project:
+```sh
+cd blockchain-nanodegree-project-3
+npm install
+```
+Finally, update `infuraKey` and `mnemonic` constants inside the `truffle.js` config file according to your own values.
+1. `mnemonic` is the recovery text that metamask gave you on your initial metamask setup.
+2. `infuraKey` can be obtained from infura.io site by creating a new project.
+
+### Usage
+To start developing and making changes on the contract, run:
+```sh
+truffle compile
+```
+and:
+```sh
+truffle test
+```
+to test your changes.
+
+A user interface is also available and can be accessed at `http://localhost:3000` after you initiated the local server:
+```sh
+npm run dev
+```
+
+When you are done and ready to deploy, deploy to the rinkeby network:
+```sh
+truffle migrate --network rinkeby
+```

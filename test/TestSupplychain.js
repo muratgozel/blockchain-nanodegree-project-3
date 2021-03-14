@@ -14,7 +14,7 @@ contract('SupplyChain', function(accounts) {
     const originFarmLongitude = "144.341490"
     var productID = sku + upc
     const productNotes = "Best beans for Espresso"
-    const productPrice = web3.toWei(1, "ether")
+    const productPrice = web3.toWei(0.0001, "ether")
     var itemState = 0
     const distributorID = accounts[2]
     const retailerID = accounts[3]
@@ -41,6 +41,38 @@ contract('SupplyChain', function(accounts) {
     console.log("Retailer: accounts[3] ", accounts[3])
     console.log("Consumer: accounts[4] ", accounts[4])
 
+    it("Testing access control functions addFarmer, addDistributor, addRetailer, addConsumer", async() => {
+      const supplyChain = await SupplyChain.deployed()
+
+      var eventFarmerEmitted = false
+      await supplyChain.FarmerAdded().watch((err, res) => {
+          eventFarmerEmitted  = true
+      })
+      await supplyChain.addFarmer(accounts[1], {from: accounts[0]});
+      assert.equal(eventFarmerEmitted, true, 'Failed to farmer.')
+
+      var eventDistributorEmitted = false
+      await supplyChain.DistributorAdded().watch((err, res) => {
+          eventDistributorEmitted  = true
+      })
+      await supplyChain.addDistributor(accounts[2], {from: accounts[0]});
+      assert.equal(eventDistributorEmitted, true, 'Failed to add distributor.')
+
+      var eventRetailerEmitted = false
+      await supplyChain.RetailerAdded().watch((err, res) => {
+          eventRetailerEmitted  = true
+      })
+      await supplyChain.addRetailer(accounts[3], {from: accounts[0]});
+      assert.equal(eventRetailerEmitted, true, 'Failed to add retailer.')
+
+      var eventConsumerEmitted = false
+      await supplyChain.ConsumerAdded().watch((err, res) => {
+          eventConsumerEmitted  = true
+      })
+      await supplyChain.addConsumer(accounts[4], {from: accounts[0]});
+      assert.equal(eventConsumerEmitted, true, 'Failed to add consumer.')
+    })
+
     // 1st Test
     it("Testing smart contract function harvestItem() that allows a farmer to harvest coffee", async() => {
         const supplyChain = await SupplyChain.deployed()
@@ -55,7 +87,8 @@ contract('SupplyChain', function(accounts) {
         })
 
         // Mark an item as Harvested by calling function harvestItem()
-        await supplyChain.harvestItem(upc, originFarmerID, originFarmName, originFarmInformation, originFarmLatitude, originFarmLongitude, productNotes)
+        await supplyChain.harvestItem(upc, originFarmerID, originFarmName, originFarmInformation,
+          originFarmLatitude, originFarmLongitude, productNotes, {from: accounts[1]})
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -188,7 +221,7 @@ contract('SupplyChain', function(accounts) {
         })
 
         // Mark an item as Sold by calling function buyItem()
-        await supplyChain.buyItem(upc, {from: distributorID, value: web3.toWei(10, "ether")});
+        await supplyChain.buyItem(upc, {from: distributorID, value: web3.toWei(0.1, "ether")});
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc)
@@ -293,7 +326,7 @@ contract('SupplyChain', function(accounts) {
             eventEmitted = true
         })
 
-        // Mark an item as Sold by calling function buyItem()
+        // Mark an item as Sold by calling function purchaseItem()
         await supplyChain.purchaseItem(upc, {from: consumerID});
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
